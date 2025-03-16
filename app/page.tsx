@@ -29,7 +29,7 @@ const messages = [
   "I love it",
   "I cant wait to see you again",
   "Life without you is just not the same",
-  "I love you hayaati",
+  "I love you hayaati"
 ];
 
 const loveTranslations = [
@@ -166,26 +166,33 @@ export default function Home() {
         const imagesRef = ref(storage, 'images');
         const result = await listAll(imagesRef);
         
-        // Sort items by name for consistent ordering
-        const sortedItems = [...result.items].sort((a, b) => a.name.localeCompare(b.name));
-        
-        // Get URLs and filter out duplicates
-        const urlPromises = sortedItems.map(imageRef => getDownloadURL(imageRef));
-        const urls = await Promise.all(urlPromises);
-        const uniqueUrls = Array.from(new Set(urls));
-        
-        // Preload the first image
-        if (uniqueUrls.length > 0) {
-          const img = document.createElement('img');
-          img.src = uniqueUrls[0];
-          img.onload = () => {
-            setLoadedImages(prev => new Set(Array.from(prev).concat([uniqueUrls[0]])));
-          };
+        if (result.items.length === 0) {
+          console.log('No images found in Firebase storage');
+          setImages([]);
+          setIsLoading(false);
+          return;
         }
+
+        const urlPromises = result.items.map(async (imageRef) => {
+          try {
+            return await getDownloadURL(imageRef);
+          } catch (error) {
+            console.error(`Error getting URL for ${imageRef.name}:`, error);
+            return null;
+          }
+        });
+
+        const urls = (await Promise.all(urlPromises)).filter((url): url is string => url !== null);
         
-        setImages(uniqueUrls);
+        if (urls.length === 0) {
+          console.log('Failed to get any valid image URLs');
+          setImages([]);
+        } else {
+          setImages(urls);
+        }
       } catch (error) {
         console.error('Error fetching images:', error);
+        setImages([]);
       } finally {
         setIsLoading(false);
       }
@@ -392,101 +399,63 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Image Slideshow */}
-        <div 
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl overflow-hidden"
-          onMouseEnter={() => setAutoPlay(false)}
-          onMouseLeave={() => setAutoPlay(true)}
-        >
+        {/* Image Grid */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl">
           <div className="relative">
             {isLoading ? (
-              <div className="relative aspect-[16/9] rounded-lg overflow-hidden flex items-center justify-center bg-gray-100">
+              <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
-                <div className="text-gray-500 mt-4">Loading images...</div>
+                <div className="text-gray-500 ml-3">Loading images...</div>
               </div>
             ) : images.length > 0 ? (
-              <>
-                <div 
-                  className={`relative aspect-[16/9] rounded-lg overflow-hidden ${
-                    isTransitioning ? 'opacity-0' : 'opacity-100'
-                  } transition-opacity duration-500 ease-in-out`}
-                >
-                  <Image
-                    src={images[currentImageIndex]}
-                    alt="Love moments"
-                    fill
-                    className={`object-cover ${loadedImages.has(images[currentImageIndex]) ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-                    priority={currentImageIndex === 0}
-                    loading={currentImageIndex === 0 ? "eager" : "lazy"}
-                    onError={handleImageError}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                    quality={75}
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                  />
-                  {imageLoadError && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                      <div className="text-gray-500">Failed to load image</div>
-                    </div>
-                  )}
-                  {!loadedImages.has(images[currentImageIndex]) && !imageLoadError && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                      <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
-                    </div>
-                  )}
-                </div>
-
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={previousImage}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 text-pink-600 hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95"
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {images.map((image, index) => {
+                  const isLarge = index % 5 === 0;
+                  const gridClass = isLarge ? 'col-span-2 row-span-2' : '';
+                  
+                  return (
+                    <div 
+                      key={image} 
+                      className={`relative group ${gridClass} rounded-lg overflow-hidden`}
                     >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 text-pink-600 hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </>
-                )}
-
-                <button
-                  onClick={() => setUploadDialogOpen(true)}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-white/80 text-pink-600 hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95"
-                >
-                  <Upload className="w-5 h-5" />
-                </button>
-
-                {images.length > 1 && (
-                  <div className="flex justify-center gap-2 mt-4">
-                    {images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => goToImage(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                          index === currentImageIndex
-                            ? 'bg-pink-500 w-4'
-                            : 'bg-pink-200 hover:bg-pink-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
+                      <div className="aspect-square relative">
+                        <Image
+                          src={image}
+                          alt={`Love moment ${index + 1}`}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                          quality={75}
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <button
+                          onClick={() => window.open(image, '_blank')}
+                          className="bg-white/80 text-pink-600 p-2 rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-300"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <div className="relative aspect-[16/9] rounded-lg overflow-hidden flex items-center justify-center bg-gray-100">
-                <div className="text-gray-500">No images available</div>
-                <button
-                  onClick={() => setUploadDialogOpen(true)}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-white/80 text-pink-600 hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95"
-                >
-                  <Upload className="w-5 h-5" />
-                </button>
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="text-gray-500 mb-4">images failed to load, not the vibes :(</div>
+                <Button onClick={() => setUploadDialogOpen(true)}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Add Images
+                </Button>
               </div>
             )}
+
+            <button
+              onClick={() => setUploadDialogOpen(true)}
+              className="fixed bottom-6 right-6 p-4 rounded-full bg-pink-500 text-white shadow-lg hover:bg-pink-600 transition-all duration-300 hover:scale-110 active:scale-95"
+            >
+              <Upload className="w-6 h-6" />
+            </button>
           </div>
         </div>
 
