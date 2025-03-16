@@ -135,6 +135,12 @@ const loveTranslations = [
   { text: "Rohayhu", language: "Guarani" }
 ];
 
+interface TimeElapsed {
+  days: number;
+  hours: number;
+  minutes: number;
+}
+
 export default function Home() {
   const [currentMessage, setCurrentMessage] = useState(0);
   const [currentLoveIndex, setCurrentLoveIndex] = useState(0);
@@ -147,13 +153,12 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [timeElapsed, setTimeElapsed] = useState({
+  const [timeElapsed, setTimeElapsed] = useState<TimeElapsed>({
     days: 0,
     hours: 0,
-    minutes: 0,
-    seconds: 0,
+    minutes: 0
   });
-  const [prevTimeElapsed, setPrevTimeElapsed] = useState(timeElapsed);
+  const [prevTimeElapsed, setPrevTimeElapsed] = useState<TimeElapsed>(timeElapsed);
   const [showPassword, setShowPassword] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
@@ -220,18 +225,33 @@ export default function Home() {
   useEffect(() => {
     const startDate = new Date("2023-11-25T00:14:00");
 
-    const timer = setInterval(() => {
+    // Calculate initial time immediately
+    const calculateTime = () => {
       const now = new Date();
       const difference = now.getTime() - startDate.getTime();
 
-      setPrevTimeElapsed(timeElapsed);
-      setTimeElapsed({
+      return {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / (1000 * 60)) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      });
-    }, 1000);
+        minutes: Math.floor((difference / (1000 * 60)) % 60)
+      };
+    };
+
+    // Set initial time
+    const initialTime = calculateTime();
+    setTimeElapsed(initialTime);
+    setPrevTimeElapsed(initialTime);
+
+    // Update every minute
+    const timer = setInterval(() => {
+      const newTimeElapsed = calculateTime();
+      
+      // Only update if values have actually changed
+      if (JSON.stringify(newTimeElapsed) !== JSON.stringify(timeElapsed)) {
+        setPrevTimeElapsed(timeElapsed);
+        setTimeElapsed(newTimeElapsed);
+      }
+    }, 60000);
 
     return () => clearInterval(timer);
   }, [timeElapsed]);
@@ -329,16 +349,39 @@ export default function Home() {
     console.error("Failed to load image:", images[currentImageIndex]);
   };
 
-  const TimeUnit = ({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => (
-    <div className="bg-pink-50 rounded-lg p-2 transform hover:scale-105 transition-transform duration-200 hover:shadow-lg">
-      <div className={`${playfair.className} text-2xl font-bold text-gray-800`}>
-        <span className={prevValue !== value ? "number-animate block" : ""}>
-          {value}
-        </span>
+  const TimeUnit = ({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => {
+    const [isAnimating, setIsAnimating] = useState(false);
+    const formattedValue = String(value).padStart(2, '0');
+    const formattedPrevValue = String(prevValue).padStart(2, '0');
+
+    useEffect(() => {
+      if (prevValue !== value) {
+        setIsAnimating(true);
+        const timer = setTimeout(() => {
+          setIsAnimating(false);
+        }, 600); // Match this with the CSS animation duration
+        return () => clearTimeout(timer);
+      }
+    }, [value, prevValue]);
+
+    return (
+      <div className="bg-pink-50 rounded-lg p-2 transform hover:scale-105 transition-transform duration-200 hover:shadow-lg">
+        <div className={`${playfair.className} text-2xl font-bold text-gray-800 h-8 relative overflow-hidden`}>
+          <div 
+            key={value} 
+            className={`absolute inset-0 flex items-center justify-center ${isAnimating ? 'number-slide' : ''}`}
+            style={{ 
+              transform: isAnimating ? undefined : 'translateY(0)',
+              opacity: isAnimating ? undefined : 1
+            }}
+          >
+            {formattedValue}
+          </div>
+        </div>
+        <div className="text-sm text-gray-600 text-center mt-1">{label}</div>
       </div>
-      <div className="text-sm text-gray-600">{label}</div>
-    </div>
-  );
+    );
+  };
 
   return (
     <main className={`min-h-screen bg-gradient-to-br from-pink-100 to-purple-100 p-4 flex flex-col items-center justify-center ${poiretOne.variable}`}>
@@ -351,11 +394,10 @@ export default function Home() {
         {/* Love Counter */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl">
           <h2 className={`${playfair.className} text-2xl text-center mb-4 text-gray-800`}>Our Time Together</h2>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <TimeUnit value={timeElapsed.days} label="Days" prevValue={prevTimeElapsed.days} />
             <TimeUnit value={timeElapsed.hours} label="Hours" prevValue={prevTimeElapsed.hours} />
             <TimeUnit value={timeElapsed.minutes} label="Minutes" prevValue={prevTimeElapsed.minutes} />
-            <TimeUnit value={timeElapsed.seconds} label="Seconds" prevValue={prevTimeElapsed.seconds} />
           </div>
         </div>
 
