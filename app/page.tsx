@@ -392,7 +392,7 @@ export default function Home() {
 
       <div className="container mx-auto max-w-4xl space-y-8">
         {/* Love Counter */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl">
+        <div className="p-6">
           <h2 className={`${playfair.className} text-2xl text-center mb-4 text-gray-800`}>Our Time Together</h2>
           <div className="grid grid-cols-3 gap-4">
             <TimeUnit value={timeElapsed.days} label="Days" prevValue={prevTimeElapsed.days} />
@@ -404,11 +404,11 @@ export default function Home() {
         {/* Love Translations */}
         <div className="flex flex-col items-center justify-center space-y-2">
           <div className="flex items-center justify-center space-x-2">
-            <Heart className="w-6 h-6 text-pink-500" />
+            
             <h2 className={`${playfair.className} text-2xl text-gray-800`}>
               {loveTranslations[currentLoveIndex].text}
             </h2>
-            <Heart className="w-6 h-6 text-pink-500" />
+            
           </div>
           <div className={`${poiretOne.className} text-sm text-gray-600`}>
             {loveTranslations[currentLoveIndex].language}
@@ -507,7 +507,7 @@ export default function Home() {
             <DialogHeader>
               <DialogTitle>Upload Image</DialogTitle>
               <DialogDescription>
-                Please enter the password to upload a new image.
+                Type the password to upload a new image.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -538,7 +538,7 @@ export default function Home() {
                 </div>
                 {passwordError && (
                   <p className="text-sm text-red-500">
-                    {selectedFile ? "Invalid password" : "Please select a file and enter the correct password"}
+                    {selectedFile ? "Wrong password domcop" : "Choose a picture and type the password"}
                   </p>
                 )}
               </div>
