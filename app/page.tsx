@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, ChevronRight, ChevronLeft, Upload, Lock } from "lucide-react";
+import { Heart, ChevronRight, ChevronLeft, Upload, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -12,32 +12,24 @@ import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import { playfair, poiretOne } from './fonts';
 
 const messages = [
-  "Hello Baby",
-  "Just wanted to tell you",
-  "That im working on some cool stuff for this site",
-  "I will be posting pictures of my wiener here",
-  "Jokes jokes",
-  "Unless...",
-  "See you getting excited for nothing",
-  "But anyways",
+  "Hi mami",
+  "I made some cool changes",
+  "We can add some pictures of us here",
+  "You can too",
+  "I already added some",
+  "If you got some you can add them too",
+  "I hope you like it",
+  "and also",
   "Just a reminder",
   "That i love you more than you love me",
-  "Yeah i'd like to see you counter that",
-  "You cant",
-  "So i win",
-  "Get destroyed",
-  "Talking about destroyed",
-  "Cant wait to destroy dat ass",
-  "Not even joking",
-  "You give me too much attitude",
-  "Its about time i give you a good pounding",
-  "Make the attitude drip down your thighs",
-  "Im serious",
-  "Ok but fr",
-  "I miss you mami",
-  "Cant wait to see you again",
-  "Hope you enjoy your off day tomorrow",
-  "I love you always",
+  "I would only ever do this for you",
+  "I cant lie",
+  "I may have a very unhealthy obsession with you",
+  "But who cares",
+  "I love it",
+  "I cant wait to see you again",
+  "Life without you is just not the same",
+  "I love you hayaati",
 ];
 
 const loveTranslations = [
@@ -162,6 +154,8 @@ export default function Home() {
     seconds: 0,
   });
   const [prevTimeElapsed, setPrevTimeElapsed] = useState(timeElapsed);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -203,7 +197,7 @@ export default function Home() {
   useEffect(() => {
     const translationTimer = setInterval(() => {
       setCurrentLoveIndex((prev) => (prev + 1) % loveTranslations.length);
-    }, 4500);
+    }, 3000);
 
     return () => clearInterval(translationTimer);
   }, []);
@@ -213,7 +207,7 @@ export default function Home() {
 
     const imageTimer = setInterval(() => {
       nextImage();
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(imageTimer);
   }, [autoPlay, currentImageIndex]);
@@ -252,8 +246,9 @@ export default function Home() {
   };
 
   const handleUpload = async () => {
-    if (password === "admin" && selectedFile) {
+    if (password === "abrarthebaddie" && selectedFile) {
       try {
+        setIsUploading(true);
         // Create a reference to the file in Firebase Storage
         const storageRef = ref(storage, `images/${selectedFile.name}`);
         
@@ -275,6 +270,8 @@ export default function Home() {
       } catch (error) {
         console.error("Error uploading file:", error);
         setPasswordError(true);
+      } finally {
+        setIsUploading(false);
       }
     } else {
       setPasswordError(true);
@@ -296,7 +293,7 @@ export default function Home() {
     <main className={`min-h-screen bg-gradient-to-br from-pink-100 to-purple-100 p-4 flex flex-col items-center justify-center ${poiretOne.variable}`}>
       {/* Welcome Heading */}
       <div className={`${playfair.className} text-5xl md:text-6xl text-pink-600 mb-8 animate-fade-in text-center leading-relaxed`}>
-        Something a little different for us ❤️
+      If I know what love is, it is because of you
       </div>
 
       <div className="container mx-auto max-w-4xl space-y-8">
@@ -312,18 +309,16 @@ export default function Home() {
         </div>
 
         {/* Love Translations */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl">
-          <div className="flex flex-col items-center justify-center space-y-2">
-            <div className="flex items-center justify-center space-x-2">
-              <Heart className="w-6 h-6 text-pink-500" />
-              <h2 className={`${playfair.className} text-2xl text-gray-800`}>
-                {loveTranslations[currentLoveIndex].text}
-              </h2>
-              <Heart className="w-6 h-6 text-pink-500" />
-            </div>
-            <div className={`${poiretOne.className} text-sm text-gray-500`}>
-              {loveTranslations[currentLoveIndex].language}
-            </div>
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <div className="flex items-center justify-center space-x-2">
+            <Heart className="w-6 h-6 text-pink-500" />
+            <h2 className={`${playfair.className} text-2xl text-gray-800`}>
+              {loveTranslations[currentLoveIndex].text}
+            </h2>
+            <Heart className="w-6 h-6 text-pink-500" />
+          </div>
+          <div className={`${poiretOne.className} text-sm text-gray-600`}>
+            {loveTranslations[currentLoveIndex].language}
           </div>
         </div>
 
@@ -449,7 +444,7 @@ export default function Home() {
                 <div className="relative">
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -457,7 +452,17 @@ export default function Home() {
                     }}
                     className={passwordError ? "border-red-500" : ""}
                   />
-                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
                 {passwordError && (
                   <p className="text-sm text-red-500">
@@ -483,10 +488,23 @@ export default function Home() {
                     setSelectedFile(null);
                     setPasswordError(false);
                   }}
+                  disabled={isUploading}
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleUpload}>Upload</Button>
+                <Button 
+                  onClick={handleUpload}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    'Upload'
+                  )}
+                </Button>
               </div>
             </div>
           </DialogContent>
