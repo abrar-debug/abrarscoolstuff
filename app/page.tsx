@@ -156,15 +156,34 @@ export default function Home() {
   const [prevTimeElapsed, setPrevTimeElapsed] = useState(timeElapsed);
   const [showPassword, setShowPassword] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        setIsLoading(true);
         const imagesRef = ref(storage, 'images');
         const result = await listAll(imagesRef);
-        const urlPromises = result.items.map(imageRef => getDownloadURL(imageRef));
+        
+        // Sort items by name for consistent ordering
+        const sortedItems = [...result.items].sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Get URLs and filter out duplicates
+        const urlPromises = sortedItems.map(imageRef => getDownloadURL(imageRef));
         const urls = await Promise.all(urlPromises);
-        setImages(urls);
+        const uniqueUrls = Array.from(new Set(urls));
+        
+        // Preload the first image
+        if (uniqueUrls.length > 0) {
+          const img = document.createElement('img');
+          img.src = uniqueUrls[0];
+          img.onload = () => {
+            setLoadedImages(prev => new Set(Array.from(prev).concat([uniqueUrls[0]])));
+          };
+        }
+        
+        setImages(uniqueUrls);
       } catch (error) {
         console.error('Error fetching images:', error);
       } finally {
@@ -174,6 +193,22 @@ export default function Home() {
 
     fetchImages();
   }, []);
+
+  // Preload the next image
+  useEffect(() => {
+    if (images.length === 0) return;
+    
+    const nextIndex = (currentImageIndex + 1) % images.length;
+    const nextImage = images[nextIndex];
+    
+    if (!loadedImages.has(nextImage)) {
+      const img = document.createElement('img');
+      img.src = nextImage;
+      img.onload = () => {
+        setLoadedImages(prev => new Set(Array.from(prev).concat([nextImage])));
+      };
+    }
+  }, [currentImageIndex, images, loadedImages]);
 
   useEffect(() => {
     const startDate = new Date("2023-11-25T00:14:00");
@@ -249,8 +284,10 @@ export default function Home() {
     if (password === "abrarthebaddie" && selectedFile) {
       try {
         setIsUploading(true);
-        // Create a reference to the file in Firebase Storage
-        const storageRef = ref(storage, `images/${selectedFile.name}`);
+        // Create a reference to the file in Firebase Storage with timestamp to ensure uniqueness
+        const timestamp = Date.now();
+        const fileName = `${timestamp}_${selectedFile.name}`;
+        const storageRef = ref(storage, `images/${fileName}`);
         
         // Upload the file
         await uploadBytes(storageRef, selectedFile);
@@ -258,9 +295,11 @@ export default function Home() {
         // Get the download URL
         const downloadURL = await getDownloadURL(storageRef);
         
-        // Add the new image URL to the images array
-        const newImages = [...images, downloadURL];
-        setImages(newImages);
+        // Add the new image URL to the images array if it's not already there
+        if (!images.includes(downloadURL)) {
+          const newImages = [...images, downloadURL];
+          setImages(newImages);
+        }
         
         // Reset the form
         setUploadDialogOpen(false);
@@ -276,6 +315,11 @@ export default function Home() {
     } else {
       setPasswordError(true);
     }
+  };
+
+  const handleImageError = () => {
+    setImageLoadError(true);
+    console.error("Failed to load image:", images[currentImageIndex]);
   };
 
   const TimeUnit = ({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => (
@@ -357,7 +401,8 @@ export default function Home() {
           <div className="relative">
             {isLoading ? (
               <div className="relative aspect-[16/9] rounded-lg overflow-hidden flex items-center justify-center bg-gray-100">
-                <div className="text-gray-500">Loading images...</div>
+                <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+                <div className="text-gray-500 mt-4">Loading images...</div>
               </div>
             ) : images.length > 0 ? (
               <>
@@ -370,9 +415,25 @@ export default function Home() {
                     src={images[currentImageIndex]}
                     alt="Love moments"
                     fill
-                    className="object-cover"
-                    priority
+                    className={`object-cover ${loadedImages.has(images[currentImageIndex]) ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+                    priority={currentImageIndex === 0}
+                    loading={currentImageIndex === 0 ? "eager" : "lazy"}
+                    onError={handleImageError}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                    quality={75}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                   />
+                  {imageLoadError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                      <div className="text-gray-500">Failed to load image</div>
+                    </div>
+                  )}
+                  {!loadedImages.has(images[currentImageIndex]) && !imageLoadError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                      <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+                    </div>
+                  )}
                 </div>
 
                 {images.length > 1 && (
