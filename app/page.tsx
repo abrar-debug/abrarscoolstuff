@@ -12,24 +12,24 @@ import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import { playfair, poiretOne } from './fonts';
 
 const messages = [
-  "Hi mami",
-  "I made some cool changes",
-  "We can add some pictures of us here",
-  "You can too",
-  "I already added some",
-  "If you got some you can add them too",
-  "I hope you like it",
-  "and also",
-  "Just a reminder",
-  "That i love you more than you love me",
-  "I would only ever do this for you",
-  "I cant lie",
-  "I may have a very unhealthy obsession with you",
-  "But who cares",
-  "I love it",
-  "I cant wait to see you again",
-  "Life without you is just not the same",
-  "I love you hayaati"
+  "Go to the next message",
+  "Yeah thats my good girl, listen to daddy",
+  "I just came to fill you in on some of my thoughts",
+  "Firstly i wanted to remind you that youre mine",
+  "Mine only",
+  "Youre mine to love",
+  "Mine to hold",
+  "Mine to kiss",
+  "Mine to do whatever i want to",
+  "Mine to fuck",
+  "Id love to tie you up",
+  "Spank you and tease you",
+  "Finger you and make you taste my fingers after",
+  "Fuck you until your legs shake",
+  "Constantly remind you that you belong to me",
+  "And youll take it all",
+  "Because youre daddys good girl",
+  "And because youre a dirty little cumslut"
 ];
 
 const loveTranslations = [
