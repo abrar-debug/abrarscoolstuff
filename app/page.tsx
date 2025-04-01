@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, ChevronRight, ChevronLeft, Upload, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Heart, ChevronRight, ChevronLeft, Upload, Lock, Eye, EyeOff, Loader2, MessageSquare } from "lucide-react";
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,26 +10,27 @@ import { Label } from "@/components/ui/label";
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import { playfair, poiretOne } from './fonts';
+import { useRouter } from 'next/navigation';
 
 const messages = [
-  "Go to the next message",
-  "Yeah thats my good girl, listen to daddy",
-  "I just came to fill you in on some of my thoughts",
-  "Firstly i wanted to remind you that youre mine",
-  "Mine only",
-  "Youre mine to love",
-  "Mine to hold",
-  "Mine to kiss",
-  "Mine to do whatever i want to",
-  "Mine to fuck",
-  "Id love to tie you up",
-  "Spank you and tease you",
-  "Finger you and make you taste my fingers after",
-  "Fuck you until your legs shake",
-  "Constantly remind you that you belong to me",
-  "And youll take it all",
-  "Because youre daddys good girl",
-  "And because youre a dirty little cumslut"
+  "Hey baby",
+  "I hope youre doing well",
+  "I miss you so much",
+  "I cant wait to see you again",
+  "I keep going back to look at your pictures",
+  "It always makes me smile so much",
+  "I need like a 20 hour long hug",
+  "Ok maybe 21",
+  "Or more",
+  "But anyways",
+  "I hope i can see you again soon",
+  "My heart hurts without you",
+  "Your presence brings me so much joy",
+  "Also I added something new for you",
+  "Press on the lock icon",
+  "Its for you to read in private",
+  "I hope you enjoy it babygirl",
+  "I love you"
 ];
 
 const loveTranslations = [
@@ -142,6 +143,7 @@ interface TimeElapsed {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [currentMessage, setCurrentMessage] = useState(0);
   const [currentLoveIndex, setCurrentLoveIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -163,6 +165,10 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [messagePassword, setMessagePassword] = useState("");
+  const [messagePasswordError, setMessagePasswordError] = useState(false);
+  const [showMessagePassword, setShowMessagePassword] = useState(false);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -308,7 +314,8 @@ export default function Home() {
   };
 
   const handleUpload = async () => {
-    if (password === "abrarthebaddie" && selectedFile) {
+    const validPasswords = ["0725817895", "0659315492"];
+    if (validPasswords.includes(password) && selectedFile) {
       try {
         setIsUploading(true);
         // Create a reference to the file in Firebase Storage with timestamp to ensure uniqueness
@@ -347,6 +354,18 @@ export default function Home() {
   const handleImageError = () => {
     setImageLoadError(true);
     console.error("Failed to load image:", images[currentImageIndex]);
+  };
+
+  const handleMessageAccess = () => {
+    const validPasswords = ["0725817895", "0659315492"];
+    if (validPasswords.includes(messagePassword)) {
+      setMessageDialogOpen(false);
+      setMessagePassword("");
+      setMessagePasswordError(false);
+      window.location.href = '/messages';
+    } else {
+      setMessagePasswordError(true);
+    }
   };
 
   const TimeUnit = ({ value, label, prevValue }: { value: number; label: string; prevValue: number }) => {
@@ -491,15 +510,84 @@ export default function Home() {
                 </Button>
               </div>
             )}
-
-            <button
-              onClick={() => setUploadDialogOpen(true)}
-              className="fixed bottom-6 right-6 p-4 rounded-full bg-pink-500 text-white shadow-lg hover:bg-pink-600 transition-all duration-300 hover:scale-110 active:scale-95"
-            >
-              <Upload className="w-6 h-6" />
-            </button>
           </div>
         </div>
+
+        {/* Fixed buttons */}
+        <div className="fixed bottom-6 right-6 flex flex-col space-y-4">
+          <button
+            onClick={() => setMessageDialogOpen(true)}
+            className="p-4 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600 transition-all duration-300 hover:scale-110 active:scale-95"
+          >
+            <Lock className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => setUploadDialogOpen(true)}
+            className="p-4 rounded-full bg-pink-500 text-white shadow-lg hover:bg-pink-600 transition-all duration-300 hover:scale-110 active:scale-95"
+          >
+            <Upload className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Message Password Dialog */}
+        <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Special Messages</DialogTitle>
+              <DialogDescription>
+                Enter the password to access special messages.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="messagePassword">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="messagePassword"
+                    type={showMessagePassword ? "text" : "password"}
+                    value={messagePassword}
+                    onChange={(e) => {
+                      setMessagePassword(e.target.value);
+                      setMessagePasswordError(false);
+                    }}
+                    className={messagePasswordError ? "border-red-500" : ""}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowMessagePassword(!showMessagePassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showMessagePassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {messagePasswordError && (
+                  <p className="text-sm text-red-500">
+                    Incorrect password
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMessageDialogOpen(false);
+                    setMessagePassword("");
+                    setMessagePasswordError(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleMessageAccess}>
+                  Access
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Upload Dialog */}
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
