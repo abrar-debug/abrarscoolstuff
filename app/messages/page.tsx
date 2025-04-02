@@ -7,24 +7,25 @@ import { playfair, poiretOne } from '../fonts';
 import { useRouter } from 'next/navigation';
 
 const specialMessages = [
-  "I hope youre alone",
-  "I just wanted to tell you how badly i want you",
-  "You turn me on so much",
-  "You make me think of the most unholiest thoughts",
-  "And how id love to make you my little cumslut",
-  "I wanna make you scream into the pillow",
-  "While i pound you from the back",
-  "And pull your hair",
-  "Im gonna make sure that i fill you up",
-  "Until its dripping down your thighs",
-  "Ill fuck you until you cant feel your legs",
-  "And ill make sure that you feel like the little slut you are",
-  "Youre going to take every inch of me like a good girl",
-  "And any complaints will be ignored",
-  "You wont even be able to make out any words",
-  "Because ill shove it down your throat",
-  "I only wanna hear choking and gagging from you",
-  "I hope you understood that slut"
+  "A special message for my pretty little slut",
+  "Every inch of you belongs to me",
+  "My good girl, always ready to please",
+  "I love the way you surrender to me without hesitation",
+  "No further thoughts, just obedience and pleasure",
+  "Kneel, open wide, and wait...",
+  "Just the way ill train you",
+  "The marks ill leave on your skin will remind you exactly who you belong to",
+  "I want you to crave my control just as much as i crave owning you",
+  "I want you to be my little cumslut",
+  "I want you to be ready to taste every drop I have for you",
+  "And be ready to be a perfect canvas for daddy",
+  "Oh how id love to paint on your perfectly slutty body",
+  "I will be the only one to undress you",
+  "Whenever I want, and youll listen like the good girl you are for me",
+  "Get on your knees and make daddy proud",
+  "Ill make sure you understand every instruction i give you",
+  "And ill make sure its met with more passion and aggression",
+  "I hope my pretty little slut understands that",
 ];
 
 export default function Messages() {
