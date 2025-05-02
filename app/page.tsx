@@ -13,25 +13,21 @@ import { playfair, poiretOne } from './fonts';
 import { useRouter } from 'next/navigation';
 
 const messages = [
-  "Hello princess",
+  "Hello cutie",
   "I hope you had a great day",
-  "I have not",
-  "Because i miss you so much :(",
-  "But",
-  "I cant wait to see you tomorrow",
-  "It feels like its been years",
-  "You bring me so much of happiness and content whenever i see you",
-  "Youre like, a drug for me",
-  "And im addicted",
-  "I genuinely feel like only you give me true happiness",
-  "I love you so much babygirl",
-  "I would do anything for you",
-  "My Aqeelah, always",
-  "I wanna do life with you",
-  "And grow old with you",
-  "Even when we old and grey, im still gonna grab your saggy bum :)",
-  "I love you my pretty baby",
-  "Enjoy the private messages"
+  "I miss you",
+  "And i miss your big head",
+  "And your big titties",
+  "I cant wait to see you again",
+  "In like 27 years",
+  "Im waiting patiently",
+  "Jokes im not",
+  "I cant wait patiently",
+  "I just want you so bad",
+  "Youre my favourite person",
+  "My pretty baby",
+  "Always",
+  "I love you"
 ];
 
 const loveTranslations = [
