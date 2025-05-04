@@ -7,25 +7,15 @@ import { playfair, poiretOne } from '../fonts';
 import { useRouter } from 'next/navigation';
 
 const specialMessages = [
-  "A special message for my pretty little slut",
-  "Every inch of you belongs to me",
-  "My good girl, always ready to please",
-  "I love the way you surrender to me without hesitation",
-  "No further thoughts, just obedience and pleasure",
-  "Kneel, open wide, and wait...",
-  "Just the way ill train you",
-  "The marks ill leave on your skin will remind you exactly who you belong to",
-  "I want you to crave my control just as much as i crave owning you",
-  "I want you to be my little cumslut",
-  "I want you to be ready to taste every drop I have for you",
-  "And be ready to be a perfect canvas for daddy",
-  "Oh how id love to paint on your perfectly slutty body",
-  "I will be the only one to undress you",
-  "Whenever I want, and youll listen like the good girl you are for me",
-  "Get on your knees and make daddy proud",
-  "Ill make sure you understand every instruction i give you",
-  "And ill make sure its met with more passion and aggression",
-  "I hope my pretty little slut understands that",
+  "Hey sexy",
+  "Daddy misses you so much",
+  "He misses his pretty little slut",
+  "I really miss feeling your body on me",
+  "Exactly how its meant to be",
+  "And i miss the way you taste",
+  "I want you to remember the neck kisses",
+  "And the places i put my hands",
+  "And all the sexy names i have for you"
 ];
 
 export default function Messages() {
