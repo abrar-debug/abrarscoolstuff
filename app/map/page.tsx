@@ -100,7 +100,7 @@ export default function Map() {
             Our Journey Together
           </h1>
           <p className={`${poiretOne.className} text-xl text-gray-600`}>
-            Every place we've been, every memory we've made
+            Every place we&apos;ve been, every memory we&apos;ve made
           </p>
         </div>
 

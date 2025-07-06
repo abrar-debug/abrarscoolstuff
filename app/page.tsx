@@ -442,7 +442,7 @@ export default function Home() {
         <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 min-h-[200px] flex flex-col transform hover:translate-y-[-5px] transition-all duration-300 border border-white/30">
           <div className="flex-1 flex items-center justify-center text-center p-4">
             <p key={currentMessage} className={`${playfair.className} text-xl text-gray-800 animate-fade-in tracking-tight`}>
-              {messages[currentMessage]}
+              {messages[currentMessage].replace(/'/g, "&apos;")}
             </p>
           </div>
           <div className="flex justify-between items-center mt-4">
