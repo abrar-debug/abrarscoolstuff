@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
-import { playfair, poiretOne } from './fonts';
+import { playfair, poiretOne, whisper } from './fonts';
 import { useRouter } from 'next/navigation';
 
 const messages = [
@@ -381,7 +381,7 @@ export default function Home() {
     }, [value, prevValue]);
 
     return (
-      <div className="bg-pink-50 rounded-lg p-2 transform hover:scale-105 transition-transform duration-200 hover:shadow-lg">
+      <div className="rounded-lg p-2 transform hover:scale-105 transition-transform duration-200 hover:shadow-lg">
         <div className={`${playfair.className} text-2xl font-bold text-gray-800 h-8 relative overflow-hidden`}>
           <div 
             key={value} 
@@ -400,13 +400,23 @@ export default function Home() {
   };
 
   return (
-    <main className={`min-h-screen bg-gradient-to-br from-pink-100 to-purple-100 p-4 flex flex-col items-center justify-center ${poiretOne.variable}`}>
+    <main className={`min-h-screen bg-beige p-4 flex flex-col items-center justify-center ${poiretOne.variable}`} style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0)", backgroundSize: "20px 20px", backgroundColor: '#f5f5dc' }}>
       {/* Welcome Heading */}
-      <div className={`${playfair.className} text-5xl md:text-6xl text-pink-600 mb-8 animate-fade-in text-center leading-relaxed`}>
-      If I know what love is, it is because of you
+      <div className={`${whisper.className} text-5xl md:text-6xl mb-8 animate-fade-in text-center leading-relaxed`}>
+      For my Princess
       </div>
 
-      <div className="container mx-auto max-w-4xl space-y-8">
+      {/* Upload Button - Top Right */}
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={() => setUploadDialogOpen(true)}
+          className="p-3 rounded-full bg-transparent text-black hover:bg-gray-100 transition-all duration-300 hover:scale-110 active:scale-95"
+        >
+          <Upload className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="w-full space-y-8">
         {/* Love Counter */}
         <div className="p-6">
           <h2 className={`${playfair.className} text-2xl text-center mb-4 text-gray-800`}>Our Time Together</h2>
@@ -432,7 +442,7 @@ export default function Home() {
         </div>
 
         {/* Message Carousel */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl min-h-[200px] flex flex-col transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl">
+        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 min-h-[200px] flex flex-col transform hover:translate-y-[-5px] transition-all duration-300 border border-white/30">
           <div className="flex-1 flex items-center justify-center text-center p-4">
             <p key={currentMessage} className={`${playfair.className} text-xl text-gray-800 animate-fade-in tracking-tight`}>
               {messages[currentMessage]}
@@ -441,7 +451,7 @@ export default function Home() {
           <div className="flex justify-between items-center mt-4">
             <button
               onClick={previousMessage}
-              className="p-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-all duration-300 hover:scale-110 active:scale-95"
+              className="p-2 rounded-full bg-transparent text-pink-600 hover:bg-pink-200/20 transition-all duration-300 hover:scale-110 active:scale-95"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
@@ -450,7 +460,7 @@ export default function Home() {
             </div>
             <button
               onClick={nextMessage}
-              className="p-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-all duration-300 hover:scale-110 active:scale-95"
+              className="p-2 rounded-full bg-transparent text-pink-600 hover:bg-pink-200/20 transition-all duration-300 hover:scale-110 active:scale-95"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -458,7 +468,12 @@ export default function Home() {
         </div>
 
         {/* Image Grid */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl transform hover:translate-y-[-5px] transition-all duration-300 hover:shadow-2xl">
+        <div className="text-center mb-8">
+          <h2 className={`${playfair.className} text-4xl md:text-5xl text-gray-800 mb-3`}>Our Memories</h2>
+          <p className={`${poiretOne.className} text-lg text-gray-600`}>Every moment captured with love</p>
+        </div>
+
+        <div className="w-full rounded-none p-0 m-0 transform hover:translate-y-[-5px] transition-all duration-300">
           <div className="relative">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -509,82 +524,6 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        {/* Fixed buttons */}
-        <div className="fixed bottom-6 right-6 flex flex-col space-y-4">
-          <button
-            onClick={() => setMessageDialogOpen(true)}
-            className="p-4 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600 transition-all duration-300 hover:scale-110 active:scale-95"
-          >
-            <Lock className="w-6 h-6" />
-          </button>
-          <button
-            onClick={() => setUploadDialogOpen(true)}
-            className="p-4 rounded-full bg-pink-500 text-white shadow-lg hover:bg-pink-600 transition-all duration-300 hover:scale-110 active:scale-95"
-          >
-            <Upload className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Message Password Dialog */}
-        <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Special Messages</DialogTitle>
-              <DialogDescription>
-                Enter the password to access special messages.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="messagePassword">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="messagePassword"
-                    type={showMessagePassword ? "text" : "password"}
-                    value={messagePassword}
-                    onChange={(e) => {
-                      setMessagePassword(e.target.value);
-                      setMessagePasswordError(false);
-                    }}
-                    className={messagePasswordError ? "border-red-500" : ""}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowMessagePassword(!showMessagePassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showMessagePassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-                {messagePasswordError && (
-                  <p className="text-sm text-red-500">
-                    Incorrect password
-                  </p>
-                )}
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMessageDialogOpen(false);
-                    setMessagePassword("");
-                    setMessagePasswordError(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleMessageAccess}>
-                  Access
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Upload Dialog */}
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
