@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, ChevronRight, ChevronLeft, Upload, Lock, Eye, EyeOff, Loader2, MessageSquare } from "lucide-react";
+import { Heart, ChevronRight, ChevronLeft, Upload, Lock, Eye, EyeOff, Loader2, MessageSquare, MapPin } from "lucide-react";
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -13,21 +13,12 @@ import { playfair, poiretOne, whisper } from './fonts';
 import { useRouter } from 'next/navigation';
 
 const messages = [
-  "Hello cutie",
-  "I hope you had a great day",
-  "I miss you",
-  "And i miss your big head",
-  "And your big titties",
-  "I cant wait to see you again",
-  "In like 27 years",
-  "Im waiting patiently",
-  "Jokes im not",
-  "I cant wait patiently",
-  "I just want you so bad",
-  "Youre my favourite person",
-  "My pretty baby",
-  "Always",
-  "I love you"
+  "Hello my pretty baby",
+  "Happy birthday",
+  "I hope you have an amazing day today",
+  "And I hope to spend many many more birthdays with you",
+  "I love you so much",
+  "And I hope you like the new section I put in as part of your birthday present",
 ];
 
 const loveTranslations = [
@@ -407,12 +398,18 @@ export default function Home() {
       </div>
 
       {/* Upload Button - Top Right */}
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex space-x-2">
         <button
           onClick={() => setUploadDialogOpen(true)}
           className="p-3 rounded-full bg-transparent text-black hover:bg-gray-100 transition-all duration-300 hover:scale-110 active:scale-95"
         >
           <Upload className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => window.location.href = '/map'}
+          className="p-3 rounded-full bg-transparent text-black hover:bg-gray-100 transition-all duration-300 hover:scale-110 active:scale-95"
+        >
+          <MapPin className="w-5 h-5" />
         </button>
       </div>
 
